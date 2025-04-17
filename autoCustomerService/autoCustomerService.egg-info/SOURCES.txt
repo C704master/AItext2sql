@@ -1,0 +1,7 @@
+README.md
+setup.py
+autoCustomerService.egg-info/PKG-INFO
+autoCustomerService.egg-info/SOURCES.txt
+autoCustomerService.egg-info/dependency_links.txt
+autoCustomerService.egg-info/requires.txt
+autoCustomerService.egg-info/top_level.txt
