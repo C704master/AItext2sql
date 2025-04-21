@@ -2,6 +2,7 @@ import mysql.connector
 from mysql.connector import Error
 
 
+
 def create_connection(host_name, user_name, user_password, db_name, port_number):
     connection = None
     try:
@@ -40,7 +41,7 @@ def main():
     # Create a database connection
     connection = create_connection(host_name, user_name, user_password, db_name, port_number)
     # Example query to test the connection
-    test_query = "SELECT * FROM your_table LIMIT 5;"
+    test_query = "SELECT * FROM 'stu' LIMIT 5;"
     # Execute the query
     execute_query(connection, test_query)
     # Close the connection
