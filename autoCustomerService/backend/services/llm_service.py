@@ -4,6 +4,7 @@ import openai
 import httpx
 from config import settings
 
+# 此为第一版流式输出，代码可以正常使用
 
 class LLMService:
     def __init__(self):

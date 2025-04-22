@@ -90,16 +90,6 @@ async def create_document(
             # 保存到数据库
             db_chat = ChatHistory(
                 user_id=1,  # 这里需要从token中获取用户ID
-                agent_type="document_creation",
-                message=json.dumps({
-                    "template_id": request.template_id,
-                    "parameters": request.parameters,
-                    "additional_requirements": request.additional_requirements
-                }),
-                response=json.dumps({
-                    "content": full_content,
-                    "download_url": download_url
-                })
             )
             db.add(db_chat)
             db.commit()

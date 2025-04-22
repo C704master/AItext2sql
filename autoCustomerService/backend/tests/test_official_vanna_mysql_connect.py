@@ -3,6 +3,8 @@ import vanna
 from dotenv import load_dotenv
 import os
 
+# 此为 官方提供 的测试代码
+
 # 加载 .env 文件中的环境变量
 load_dotenv()
 # 从 .env 文件中读取配置
