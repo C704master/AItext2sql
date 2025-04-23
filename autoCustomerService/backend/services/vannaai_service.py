@@ -80,16 +80,25 @@ class MyVanna(ChromaDB_VectorStore, OpenAI_Chat):
         ddl_documents = ChromaDB_VectorStore._extract_documents(
             self.ddl_collection.query(
                 query_texts=[question],
-                n_results=self.n_results_ddl,
+                n_results=5, # 返回前5个结果
             )
         )
-        # 处理返回的列表，转换为字符串
         if ddl_documents:
-            # 假设我们只需要第一个文档的定义信息
-            table_definition = ddl_documents[0]
-            return json.dumps(table_definition) if isinstance(table_definition, dict) else str(table_definition)
+            # 将前5个文档的定义信息拼接成一个字符串
+            table_definitions = []
+            for doc in ddl_documents[:5]:  # 只取前5个文档
+                if isinstance(doc, dict):
+                    table_definitions.append(json.dumps(doc))
+                else:
+                    table_definitions.append(str(doc))
+
+            # 将所有文档的定义信息拼接成一个字符串
+            concatenated_definitions = " \n\n ".join(table_definitions)
+            return concatenated_definitions
         else:
             return "No table definition found."
+
+
 
 
 
