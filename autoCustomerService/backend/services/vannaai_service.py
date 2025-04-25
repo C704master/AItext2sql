@@ -102,7 +102,7 @@ class MyVanna(ChromaDB_VectorStore, OpenAI_Chat):
 
 
 
-    def generate_sql_question_analysis_report(self,
+    def analyse_sql_question(self,
                                               question: str) -> str:
         """生成SQL问题分析报告"""
         # 找向量数据库中有没有表的信息
@@ -420,8 +420,9 @@ def main():
     # vn.connect_to_mysql(host=host_name, user=user_name, password=user_password, dbname=db_name, port=port_number)
     # # 测试服务
 
-    test_result = vn.generate_sql_question_analysis_report("Please give me the information of all the albums")
+    test_result = vn.analyse_sql_question("Please give me the information of all the albums")
     print(test_result)
+
 
     # app = VannaFlaskApp(vn, allow_llm_to_see_data=True)
     # app.run()
