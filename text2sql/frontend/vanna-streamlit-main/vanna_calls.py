@@ -28,7 +28,7 @@ db_name = os.getenv("MYSQL_DATABASE")
 port_number = 3306
 chromadb_data_path = os.getenv("CHROMA_DATA_PATH")
 # 定义数据库类型（可配置）
-DB_TYPE = "MySQL"  # 可选值: "MySQL", "PostgreSQL", "SQLite", "Oracle", "SQL Server"
+DB_TYPE = "MySQL"
 
 # 初始化 OpenAI 客户端
 deepseek_client = OpenAI(
@@ -42,7 +42,7 @@ deepseek_client = OpenAI(
 def setup_vanna():
     vn = MyVanna(api_key=openai_api_key, model=openai_model, client=deepseek_client)
     # # 连接 MySQL 数据库
-    vn.connect_to_mysql_v2(host=host_name, user=user_name, password=user_password, dbname=db_name, port=port_number)
+    vn.connect_to_mysql(host=host_name, user=user_name, password=user_password, dbname=db_name, port=port_number)
 
     # vn = VannaDefault(api_key=st.secrets.get("VANNA_API_KEY"), model='chinook')
     # vn.connect_to_sqlite("https://vanna.ai/Chinook.sqlite")
@@ -125,9 +125,9 @@ def generate_sql_v2_cached(question: str, context: str, analysis_report: str):
 
 # 生成可视化推荐报告
 @st.cache_data(show_spinner="生成可视化推荐报告中，请稍等")
-def generate_summary_v2_cached(question, sql, df):
+def generate_result_visual_command_v2_cached(question, sql, df):
     vn = setup_vanna()
-    return vn.generate_result_visual_command_v2(query=question, sql=sql, df=df)
+    return vn.generate_result_visual_command_v2(question=question, sql=sql, df=df)
 
 
 # 生成特质化plotly画图代码
@@ -166,3 +166,9 @@ def generate_summary_v2_cached(question, df, sql):
 def run_sql_v2_cached(sql: str):
     vn = setup_vanna()
     return vn.run_sql(sql=sql)
+
+# 查找上下文信息
+@st.cache_data(show_spinner="查找上下文信息中，请稍等")
+def find_schema_cached(question):
+    vn = setup_vanna()
+    return vn.find_schema(question=question)

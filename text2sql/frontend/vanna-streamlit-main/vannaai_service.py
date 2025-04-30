@@ -507,7 +507,7 @@ class MyVanna(ChromaDB_VectorStore, OpenAI_Chat):
 
     # 生成SQL执行结果报告，并生成可视化推荐
     def generate_result_visual_command_v2(self,
-                                sql: str, query: str, df: pd.DataFrame, **kwargs) -> str:
+                                sql: str, question: str, df: pd.DataFrame, **kwargs) -> str:
         prompt = """```
             你是一名专业的数据可视化专家，负责根据提供的用户指令、SQL查询及其结果数据，推荐最合适的数据可视化方式，并给出详细的配置建议。
             
@@ -592,7 +592,7 @@ class MyVanna(ChromaDB_VectorStore, OpenAI_Chat):
             """
         task = f"""
                 ## 用户指令
-                 {query}
+                 {question}
 
                 ## 待分析的SQL查询
                 {sql}
