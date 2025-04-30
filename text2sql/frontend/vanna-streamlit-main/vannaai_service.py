@@ -613,8 +613,47 @@ class MyVanna(ChromaDB_VectorStore, OpenAI_Chat):
         summary = self.submit_prompt(prompt=prompts, model=openai_model)
         return summary
 
+    # 生成SQL执行结果报告，并生成可视化推荐
+    def generate_summary_v2(self,
+                                          sql: str, query: str, df: pd.DataFrame, **kwargs) -> str:
+        prompt = """```
+            你是一名专业的数据可视化专家，负责根据提供的用户指令、SQL查询及其结果数据，生成一篇非技术人员的SQL查询结果报告。
 
+            ## 规则
 
+            1.  **分析SQL查询：** 理解SQL查询的目标，例如是进行趋势分析、比较不同类别的数据、展示数据分布还是显示详细数据。
+            2.  **分析查询结果数据结构：** 检查返回的数据包含哪些字段，它们的数据类型（数值型、分类型等），以及数据的组织方式（例如，是否包含时间序列、类别标签、数值指标等）。
+            3.  **基于数据结构和查询目标推荐可视化类型：**
+                * 如果数据涉及**时间序列**且需要展示**趋势**，推荐 `"line"` (折线图)。
+                * 如果需要**比较不同类别**的**数值大小**，推荐 `"bar"` (柱状图)。
+                * 如果需要展示**各部分占总体的比例**，且类别数量不多，推荐 `"pie"` (饼图)。需要确保数值型字段是总量的一部分。
+                * 如果需要展示**两个数值变量之间的关系**或**数据点的分布**，推荐 `"scatter"` (散点图)。
+                * 如果数据结构复杂、细节重要，或者无法找到合适的图表类型清晰表达，推荐 `"table"` (表格)。
+            4.  **生成结果总结：** 综合以上3点和下面的，生成一篇完整的简短的SQL结果总结。
+            
+            """
+        task = f"""
+                ## 用户指令
+                 {query}
+
+                ## 待分析的SQL查询
+                {sql}
+
+                ## SQL查询结果数据
+                ```markdown
+                {df.to_markdown()}
+                ```
+
+                请根据提供的上述信息，分析并输出最合适的可视化类型和配置，输出必须是有效的JSON
+                """
+        prompt += task
+        role = "user"
+        # 最后要传入的 prompt 是一个列表，包含多个消息字典，每个字典包含键 "content"
+        prompts = [
+            {"content": prompt, "role": role},
+        ]
+        summary = self.submit_prompt(prompt=prompts, model=openai_model)
+        return summary
 
 
 def main():

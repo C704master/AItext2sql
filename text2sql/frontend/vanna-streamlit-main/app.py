@@ -59,50 +59,69 @@ if my_question is None:
         "请告诉我关于您想知道的数据的问题",
     )
 
-
+# 如果读入了 用户的问题，则 my_question 返回true
 if my_question:
     st.session_state["my_question"] = my_question
+
+    #
     user_message = st.chat_message("user")
+
+    # 显示用户输入的问题
     user_message.write(f"{my_question}")
 
+    # 生成SQL语句
     sql = generate_sql_cached(question=my_question)
 
+    # 如果生成了SQL语句，则会触发这个逻辑结构
     if sql:
+        #  如果SQL语句有效并且show_sql按钮为真，则显示SQL语句
         if is_sql_valid_cached(sql=sql):
             if st.session_state.get("show_sql", True):
                 assistant_message_sql = st.chat_message(
+                    # avatar_url是头像的地址，avatar是头像的意思
                     "assistant", avatar=avatar_url
                 )
+                # 显示SQL语句
                 assistant_message_sql.code(sql, language="sql", line_numbers=True)
         else:
+            # 如果SQL语句无效，则显示SQL语句,然后停止程序
             assistant_message = st.chat_message(
                 "assistant", avatar=avatar_url
             )
             assistant_message.write(sql)
             st.stop()
 
+        # 运行SQL语句，返回SQL查询到的数据集
         df = run_sql_cached(sql=sql)
 
+        # 如果SQL查询到了数据，则st的会话状态中加入df这个变量，代表 SQL查询到的数据集
         if df is not None:
             st.session_state["df"] = df
 
+        # 如果SQL查询到了数据，则进入这个逻辑模块
         if st.session_state.get("df") is not None:
+            # 如果show_table按钮为真，则显示SQL查询到的数据集
             if st.session_state.get("show_table", True):
+                # 获取SQL查询到的数据集
                 df = st.session_state.get("df")
                 assistant_message_table = st.chat_message(
                     "assistant",
                     avatar=avatar_url,
                 )
+                # 如果SQL查询到的数据集大于10行，则只显示前10行的数据
                 if len(df) > 10:
                     assistant_message_table.text("显示前10行的数据")
                     assistant_message_table.dataframe(df.head(10))
                 else:
+                    #  如果SQL查询到的数据集小于等于10行，显示SQL查询到的所有数据集
                     assistant_message_table.dataframe(df)
 
+            # 如果系统判断应该生成图表，则执行这个逻辑模块
             if should_generate_chart_cached(question=my_question, sql=sql, df=df):
-
+                # 生成plotly代码
                 code = generate_plotly_code_cached(question=my_question, sql=sql, df=df)
 
+                # 如果show_plotly_code按钮为真，则显示plotly代码
                 if st.session_state.get("show_plotly_code", False):
                     assistant_message_plotly_code = st.chat_message(
                         "assistant",
@@ -112,32 +131,39 @@ if my_question:
                         code, language="python", line_numbers=True
                     )
 
+                # 如果plotly代码有效，则生成图表
                 if code is not None and code != "":
                     if st.session_state.get("show_chart", True):
                         assistant_message_chart = st.chat_message(
                             "assistant",
                             avatar=avatar_url,
                         )
+                        # 生成图表
                         fig = generate_plot_cached(code=code, df=df)
+                        # 如果图表生成成功，则显示图表
                         if fig is not None:
                             assistant_message_chart.plotly_chart(fig)
                         else:
                             assistant_message_chart.error("plotly代码有错误，我不能生成图表")
 
+            # 如果show_summary按钮按下去了，则执行这个逻辑模块
             if st.session_state.get("show_summary", True):
                 assistant_message_summary = st.chat_message(
                     "assistant",
                     avatar=avatar_url,
                 )
+                # 生成摘要
                 summary = generate_summary_cached(question=my_question, df=df)
                 if summary is not None:
                     assistant_message_summary.text(summary)
 
+            # 如果show_followup按钮按下去了，则执行这个逻辑模块
             if st.session_state.get("show_followup", True):
                 assistant_message_followup = st.chat_message(
                     "assistant",
                     avatar=avatar_url,
                 )
+                # 生成后续问题
                 followup_questions = generate_followup_cached(
                     question=my_question, sql=sql, df=df
                 )
