@@ -12,20 +12,25 @@ from vanna_calls import (
     generate_summary_cached
 )
 
-avatar_url = "https://vanna.ai/img/vanna.svg"
+# LOGO
+# avatar_url = "https://vanna.ai/img/vanna.svg"
+# 华侨大学logo
+avatar_url = r"C:\workspace\text2sql\frontend\vanna-streamlit-main\assets\Huaqiao_University_logo.png"
 
 st.set_page_config(layout="wide")
 
-st.sidebar.title("Output Settings")
-st.sidebar.checkbox("Show SQL", value=True, key="show_sql")
-st.sidebar.checkbox("Show Table", value=True, key="show_table")
-st.sidebar.checkbox("Show Plotly Code", value=True, key="show_plotly_code")
-st.sidebar.checkbox("Show Chart", value=True, key="show_chart")
-st.sidebar.checkbox("Show Summary", value=True, key="show_summary")
-st.sidebar.checkbox("Show Follow-up Questions", value=True, key="show_followup")
-st.sidebar.button("Reset", on_click=lambda: set_question(None), use_container_width=True)
+st.sidebar.title("输出设置")
+st.sidebar.checkbox("展示SQL语句", value=True, key="show_sql")
+st.sidebar.checkbox("展示查询到的数据", value=True, key="show_table")
+st.sidebar.checkbox("展示plotly画图代码", value=True, key="show_plotly_code")
+st.sidebar.checkbox("展示数据表格", value=True, key="show_chart")
+st.sidebar.checkbox("展示总结", value=True, key="show_summary")
+st.sidebar.checkbox("展示历史类似问题", value=True, key="show_followup")
+st.sidebar.checkbox("展示SQL问题报告", value=True, key="show_analysis_sql_question_report")
+st.sidebar.checkbox("展示SQL语句解释报告", value=True, key="show_SQL_interpretation_report")
+st.sidebar.button("重置对话", on_click=lambda: set_question(None), use_container_width=True)
 
-st.title("Vanna AI")
+st.title("华侨大学Text2SQL数据可视化智能系统")
 # st.sidebar.write(st.session_state)
 
 
@@ -36,7 +41,7 @@ def set_question(question):
 assistant_message_suggested = st.chat_message(
     "assistant", avatar=avatar_url
 )
-if assistant_message_suggested.button("Click to show suggested questions"):
+if assistant_message_suggested.button("点击生成建议性的问题"):
     st.session_state["my_question"] = None
     questions = generate_questions_cached()
     for i, question in enumerate(questions):
@@ -51,7 +56,7 @@ my_question = st.session_state.get("my_question", default=None)
 
 if my_question is None:
     my_question = st.chat_input(
-        "Ask me a question about your data",
+        "请告诉我关于您想知道的数据的问题",
     )
 
 
@@ -89,7 +94,7 @@ if my_question:
                     avatar=avatar_url,
                 )
                 if len(df) > 10:
-                    assistant_message_table.text("First 10 rows of data")
+                    assistant_message_table.text("显示前10行的数据")
                     assistant_message_table.dataframe(df.head(10))
                 else:
                     assistant_message_table.dataframe(df)
@@ -117,7 +122,7 @@ if my_question:
                         if fig is not None:
                             assistant_message_chart.plotly_chart(fig)
                         else:
-                            assistant_message_chart.error("I couldn't generate a chart")
+                            assistant_message_chart.error("plotly代码有错误，我不能生成图表")
 
             if st.session_state.get("show_summary", True):
                 assistant_message_summary = st.chat_message(
@@ -140,7 +145,7 @@ if my_question:
 
                 if len(followup_questions) > 0:
                     assistant_message_followup.text(
-                        "Here are some possible follow-up questions"
+                        "这里有些可能的后续问题，请选择一个"
                     )
                     # Print the first 5 follow-up questions
                     for question in followup_questions[:5]:
@@ -150,4 +155,4 @@ if my_question:
         assistant_message_error = st.chat_message(
             "assistant", avatar=avatar_url
         )
-        assistant_message_error.error("I wasn't able to generate SQL for that question")
+        assistant_message_error.error("由于缺少相应数据，我不能生成SQL语句")
