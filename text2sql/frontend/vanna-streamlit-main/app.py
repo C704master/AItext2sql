@@ -50,20 +50,6 @@ def set_question(question):
     st.session_state["my_question"] = question
 
 
-# assistant_message_suggested = st.chat_message(
-#     "assistant", avatar=avatar_url
-# )
-# if assistant_message_suggested.button("点击生成建议性的问题"):
-#     st.session_state["my_question"] = None
-#     questions = generate_questions_cached()
-#     for i, question in enumerate(questions):
-#         time.sleep(0.05)
-#         button = st.button(
-#             question,
-#             on_click=set_question,
-#             args=(question,),
-#         )
-
 my_question = st.session_state.get("my_question", default=None)
 
 if my_question is None:
@@ -104,7 +90,7 @@ if my_question:
 
     # 生成SQL语句
     sql = generate_sql_v2_cached(question=my_question, analysis_report=sql_report, context=context)
-    explain_sql_report = generate_sql_explain_v2_cached(sql=sql)
+    explain_sql_report = ""
 
     # 如果生成了SQL语句，则会触发这个逻辑结构
     if sql:
@@ -118,6 +104,7 @@ if my_question:
                 # 显示SQL语句
                 assistant_message_sql.code(sql, language="sql", line_numbers=True)
 
+            explain_sql_report = generate_sql_explain_v2_cached(sql=sql)
             # 如果SQL解释语句按钮为真，则显示SQL语句解释报告
             if st.session_state.get("show_SQL_interpretation_report", True):
                 assistant_message_SQL_interpretation_report = st.chat_message(
@@ -151,12 +138,12 @@ if my_question:
                     "assistant",
                     avatar=avatar_url,
                 )
-                # 如果SQL查询到的数据集大于10行，则只显示前10行的数据
-                if len(df) > 10:
-                    assistant_message_table.text("显示前10行的数据")
-                    assistant_message_table.dataframe(df.head(10))
+                # 如果SQL查询到的数据集大于300行，则只显示前300行的数据
+                if len(df) > 300:
+                    assistant_message_table.text("显示前300行的数据")
+                    assistant_message_table.dataframe(df.head(300))
                 else:
-                    #  如果SQL查询到的数据集小于等于10行，显示SQL查询到的所有数据集
+                    #  如果SQL查询到的数据集小于等于300行，显示SQL查询到的所有数据集
                     assistant_message_table.dataframe(df)
 
             # 如果系统判断应该生成图表，则执行这个逻辑模块
@@ -213,29 +200,6 @@ if my_question:
                 summary = generate_summary_cached(question=my_question, df=df)
                 if summary is not None:
                     assistant_message_summary.text(summary)
-
-            # 如果show_followup按钮按下去了，则执行这个逻辑模块
-            # 目前这个模块还没有写完
-            # if st.session_state.get("show_followup", True):
-            #     assistant_message_followup = st.chat_message(
-            #         "assistant",
-            #         avatar=avatar_url,
-            #     )
-            #     # 生成后续问题
-            #     followup_questions = generate_followup_cached(
-            #         question=my_question, sql=sql, df=df
-            #     )
-            #     st.session_state["df"] = None
-            #
-            #     if len(followup_questions) > 0:
-            #         assistant_message_followup.text(
-            #             "这里有些可能的后续问题，请选择一个"
-            #         )
-            #         # Print the first 5 follow-up questions
-            #         for question in followup_questions[:5]:
-            #             assistant_message_followup.button(question, on_click=set_question, args=(question,))
-
-        # 生成一个问题是否满意的提示
 
 
     else:

@@ -28,7 +28,7 @@ db_name = os.getenv("MYSQL_DATABASE")
 port_number = 3306
 chromadb_data_path = os.getenv("CHROMA_DATA_PATH")
 # 定义数据库类型（可配置）
-DB_TYPE = "MySQL"
+DB_TYPE = os.getenv("DB_TYPE")
 
 # 初始化 OpenAI 客户端
 deepseek_client = OpenAI(
@@ -43,9 +43,6 @@ def setup_vanna():
     vn = MyVanna(api_key=openai_api_key, model=openai_model, client=deepseek_client)
     # # 连接 MySQL 数据库
     vn.connect_to_mysql(host=host_name, user=user_name, password=user_password, dbname=db_name, port=port_number)
-
-    # vn = VannaDefault(api_key=st.secrets.get("VANNA_API_KEY"), model='chinook')
-    # vn.connect_to_sqlite("https://vanna.ai/Chinook.sqlite")
     return vn
 
 

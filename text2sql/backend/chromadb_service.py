@@ -149,7 +149,7 @@ def main():
     # # 连接 MySQL 数据库
     # vn.connect_to_mysql(host=host_name, user=user_name, password=user_password, dbname=db_name, port=port_number)
     # 测试服务
-    test_result = vn.analyse_sql_question("请给我所有的客户信息")
+    test_result = vn.generate_sql_question_report("请给我所有的客户信息")
     print(test_result)
 
     # app = VannaFlaskApp(vn, allow_llm_to_see_data=True)

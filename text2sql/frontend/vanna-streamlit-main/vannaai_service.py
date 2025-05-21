@@ -61,27 +61,6 @@ class MyVanna(ChromaDB_VectorStore, OpenAI_Chat):
         self.db_type = db_type
         self.db_schema = db_schema
 
-    # def optimize_sql_query(
-    #         self,
-    #         question: str
-    # ) -> str:
-    #     """优化用户SQL提问，这个函数效果不是很好，但是实验跑通了"""
-    #     prompt = f"""你是一个资深的SQL问题优化专家，请你一步一步遵循以下提示，优化SQL问题，最后返回一个尽量按照下面要求的SQL问题：
-    #                 1. **明确性和具体性**：确保提问明确具体，使用具体的表名和字段名，提供完整的上下文信息。\n
-    #                 2. ** 可执行性和可行性 **：确保提问可以通过标准的SQL语句实现，包含所有必要的条件和过滤条件。
-    #                 3. ** 逻辑性和一致性 **：检查提问中的逻辑关系是否清晰，条件是否一致，避免逻辑矛盾。
-    #                 4. ** 简洁性和直接性 **：使用简洁明了的语言描述问题，直接指出核心问题，避免冗长和复杂表述。
-    #                 5. ** 相关性和针对性 **：确保提问与数据库结构和数据紧密相关，明确指出涉及的具体数据表和字段。
-    #                 6. ** 标准化和规范化 **：使用标准的SQL术语和语法，遵循SQL的最佳实践和规范。
-    #                 7. ** 完整性和详尽性 **：确保提问包含所有必要的细节，检查是否有遗漏的关键信息。
-    #                 8. ** 可验证性和测试性 **：确保提问可以通过实际执行SQL语句来验证结果，提供必要的测试数据或场景。"""
-    #     prompt += f"\n\nSQL问题：{question}"
-    #     role = "user"
-    #     # 最后要传入的 prompt 是一个列表，包含多个消息字典，每个字典包含键 "content"
-    #     prompts = [
-    #         {"content": prompt, "role": role},
-    #     ]
-    #     return self.submit_prompt(prompt=prompts, model=openai_model)
 
     # 创建一个查找表信息的函数
 
@@ -113,11 +92,12 @@ class MyVanna(ChromaDB_VectorStore, OpenAI_Chat):
     def generate_sql_question_report(self,
                              question: str) -> str:
         """生成SQL问题分析报告"""
-        # 找向量数据库中有没有表的信息
+        # 通过Chroma向量数据库存储全量DDL文档和历史上下文信息,找向量数据库中有没有表的信息
         self.db_schema = self.find_schema(question)
 
         prompt = f"""
-            你是一名专业的数据库分析与生成SQL命令的分析专家。你的任务是深入分析用户的自然语言查询，并结合给定的数据库表结构信息，生成一份完整详细的关于生成SQL命令的分析报告。这份报告将作为后续指导另一个大模型生成精确SQL命令的关键依据。
+            你是一名专业的数据库分析与生成SQL命令的分析专家。你的任务是深入分析用户的自然语言查询，并结合给定的数据库表结构信息，
+            生成一份完整详细的关于生成SQL命令的分析报告。这份报告将作为后续指导另一个大模型生成精确SQL命令的关键依据。
             **核心目标：**
             
             基于用户查询和数据库结构，输出一份结构化的报告，详细描述如何将用户意图转化为SQL查询的关键步骤和考虑因素。
@@ -150,7 +130,8 @@ class MyVanna(ChromaDB_VectorStore, OpenAI_Chat):
                 * 指出生成完整且准确SQL语句所需的任何缺失信息。
             
             5.  **SQL操作类型与结构初步构思：**
-                * 基于对用户意图的理解，确定需要执行的SQL操作类型（例如：SELECT, INSERT, UPDATE, DELETE）。对于查询操作，需要进一步考虑是否需要聚合函数（SUM, AVG, COUNT, MAX, MIN）、分组（GROUP BY）、排序（ORDER BY）、限制结果数量（LIMIT）等。
+                * 基于对用户意图的理解，确定需要执行的SQL操作类型（例如：SELECT, INSERT, UPDATE, DELETE）。
+                对于查询操作，需要进一步考虑是否需要聚合函数（SUM, AVG, COUNT, MAX, MIN）、分组（GROUP BY）、排序（ORDER BY）、限制结果数量（LIMIT）等。
                 * 初步构思SQL查询语句的基本结构框架，包括涉及的表、大致的连接方式和主要的条件逻辑。
             
             6.  **报告输出 - 请严格按照以下格式：**
